@@ -1,0 +1,20 @@
+[
+  {
+    "case": "budget",
+    "exit_code": 0,
+    "stdout": "{\"run_id\": \"2f07e0ac0e0840f4a2e5fe190cf7b4f8\", \"termination\": \"completed\", \"answer\": \"**Results:**\\n\\n1. **invoice-001**: \\u2705 **SUCCEEDED** \\u2014 The charge completed successfully.\\n2. **invoice-002**: \\u274c **REJECT (HARD_REJECT)** \\u2014 The policy denied this charge; no retry will change the outcome.\", \"state\": {\"payment_total_minor\": 60, \"held_minor\": 60, \"requests\": [{\"id\": \"acceptance-invoice-001\", \"status\": \"SUCCEEDED\", \"amount_minor\": 60, \"reason\": \"tool completed\", \"decision\": {\"context_hash\": \"e865dd0df9dae325d8e702c0a6542e8fa24eb4b8d897733ff11ac4b05d2e5829\", \"decision\": \"ALLOW\", \"hard_ids\": [], \"path\": [\"score\"], \"policy_hash\": \"560aaf5a51925b99c95051c0a16c4ee18cccd0be8e3bba87b6696fddf58b8163\", \"reason\": \"SOFT_DECISION\", \"scores\": [[\"ALLOW\", 1]], \"soft_ids\": [\"charge\"], \"version\": \"romp-mu++/0.2\"}}]}}\n",
+    "stderr": ""
+  },
+  {
+    "case": "files",
+    "exit_code": 0,
+    "stdout": "{\"run_id\": \"eb89f613a1d44786a2ebf4cca3ab997c\", \"termination\": \"completed\", \"answer\": \"**Delete Operation Results:**\\n\\n1. **delete draft** \\u2192 **SUCCEEDED** (tool completed)\\n2. **delete core** \\u2192 **REJECT** (HARD_REJECT)\\n\\nThe draft deletion was allowed and completed successfully. The core deletion was denied by policy with a hard reject.\", \"state\": {\"payment_total_minor\": 60, \"held_minor\": 60, \"requests\": [{\"id\": \"acceptance-draft\", \"status\": \"SUCCEEDED\", \"amount_minor\": 0, \"reason\": \"tool completed\", \"decision\": {\"context_hash\": \"ddfe5e00c9d73e143630b488fc5c9574aa5053cf3d5b94469184e771667ff917\", \"decision\": \"ALLOW\", \"hard_ids\": [], \"path\": [\"score\"], \"policy_hash\": \"560aaf5a51925b99c95051c0a16c4ee18cccd0be8e3bba87b6696fddf58b8163\", \"reason\": \"SOFT_DECISION\", \"scores\": [[\"ALLOW\", 1]], \"soft_ids\": [\"delete\"], \"version\": \"romp-mu++/0.2\"}}, {\"id\": \"acceptance-invoice-001\", \"status\": \"SUCCEEDED\", \"amount_minor\": 60, \"reason\": \"tool completed\", \"decision\": {\"context_hash\": \"e865dd0df9dae325d8e702c0a6542e8fa24eb4b8d897733ff11ac4b05d2e5829\", \"decision\": \"ALLOW\", \"hard_ids\": [], \"path\": [\"score\"], \"policy_hash\": \"560aaf5a51925b99c95051c0a16c4ee18cccd0be8e3bba87b6696fddf58b8163\", \"reason\": \"SOFT_DECISION\", \"scores\": [[\"ALLOW\", 1]], \"soft_ids\": [\"charge\"], \"version\": \"romp-mu++/0.2\"}}]}}\n",
+    "stderr": ""
+  },
+  {
+    "case": "restart",
+    "exit_code": 0,
+    "stdout": "{\"run_id\": \"02fbcbc01f254bd386df75d51f4dffcc\", \"termination\": \"completed\", \"answer\": \"**Tool Outcomes:**\\n\\n1. **charge invoice-001**: SUCCEEDED (tool completed)\\n2. **charge invoice-002**: REJECT (HARD_REJECT)\", \"state\": {\"payment_total_minor\": 60, \"held_minor\": 60, \"requests\": [{\"id\": \"acceptance-draft\", \"status\": \"SUCCEEDED\", \"amount_minor\": 0, \"reason\": \"tool completed\", \"decision\": {\"context_hash\": \"ddfe5e00c9d73e143630b488fc5c9574aa5053cf3d5b94469184e771667ff917\", \"decision\": \"ALLOW\", \"hard_ids\": [], \"path\": [\"score\"], \"policy_hash\": \"560aaf5a51925b99c95051c0a16c4ee18cccd0be8e3bba87b6696fddf58b8163\", \"reason\": \"SOFT_DECISION\", \"scores\": [[\"ALLOW\", 1]], \"soft_ids\": [\"delete\"], \"version\": \"romp-mu++/0.2\"}}, {\"id\": \"acceptance-invoice-001\", \"status\": \"SUCCEEDED\", \"amount_minor\": 60, \"reason\": \"tool completed\", \"decision\": {\"context_hash\": \"e865dd0df9dae325d8e702c0a6542e8fa24eb4b8d897733ff11ac4b05d2e5829\", \"decision\": \"ALLOW\", \"hard_ids\": [], \"path\": [\"score\"], \"policy_hash\": \"560aaf5a51925b99c95051c0a16c4ee18cccd0be8e3bba87b6696fddf58b8163\", \"reason\": \"SOFT_DECISION\", \"scores\": [[\"ALLOW\", 1]], \"soft_ids\": [\"charge\"], \"version\": \"romp-mu++/0.2\"}}]}}\n",
+    "stderr": ""
+  }
+]

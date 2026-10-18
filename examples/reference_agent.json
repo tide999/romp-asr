@@ -1,0 +1,16 @@
+{
+  "policy": "policy_v03.json",
+  "state_dir": "../agent-state",
+  "subject": "local-operator",
+  "model": {
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "key_env": "ROMP_API_MODEL_KEY"
+  },
+  "orders": {
+    "invoice-001": {"id": "invoice-001", "amount_minor": 60},
+    "invoice-002": {"id": "invoice-002", "amount_minor": 50}
+  },
+  "max_turns": 8,
+  "max_tokens": 4096
+}

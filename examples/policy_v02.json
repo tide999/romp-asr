@@ -1,0 +1,18 @@
+{
+  "version": "romp-mu++/0.2",
+  "types": {
+    "operation": "string",
+    "amount_minor": "int",
+    "candidate_total_minor": "int",
+    "target_protected": "bool"
+  },
+  "default": "REJECT",
+  "rules": [
+    {"id": "budget", "kind": "hard", "if": [">", "candidate_total_minor", 100], "then": "REJECT"},
+    {"id": "protected", "kind": "hard", "if": ["=", "target_protected", true], "then": "REJECT"},
+    {"id": "charge", "kind": "soft", "if": ["=", "operation", "Charge"], "then": "ALLOW", "weight": 1, "priority": 0},
+    {"id": "delete", "kind": "soft", "if": ["=", "operation", "Delete"], "then": "ALLOW", "weight": 1, "priority": 0}
+  ],
+  "order": {"precedence": [["REJECT", "ESCALATE"], ["ESCALATE", "ALLOW"]]},
+  "limits": {"max_rules": 64, "max_depth": 6, "max_nodes": 1024}
+}

@@ -1,0 +1,41 @@
+{
+  "policy": "../../examples/policy_v03.json",
+  "state_dir": "state",
+  "subject": "synthetic-acceptance",
+  "model": {
+    "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+    "name": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "key_env": "ROMP_ACCEPTANCE_KEY"
+  },
+  "orders": {
+    "invoice-001": {
+      "id": "acceptance-invoice-001",
+      "amount_minor": 60
+    },
+    "invoice-002": {
+      "id": "acceptance-invoice-002",
+      "amount_minor": 50
+    }
+  },
+  "roots": {
+    "workspace": "workspace",
+    "system": "system"
+  },
+  "protected_roots": [
+    "system"
+  ],
+  "targets": {
+    "draft": {
+      "id": "acceptance-draft",
+      "root": "workspace",
+      "path": "draft.txt"
+    },
+    "core": {
+      "id": "acceptance-core",
+      "root": "system",
+      "path": "core.txt"
+    }
+  },
+  "max_turns": 8,
+  "max_tokens": 4096
+}

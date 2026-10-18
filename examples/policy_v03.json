@@ -1,0 +1,21 @@
+{
+  "version": "romp-mu++/0.3",
+  "types": {"operation": "string", "amount_minor": "int", "target_protected": "bool"},
+  "states": {"spent": {"type": "gross"}, "charge_count": {"type": "gross"}},
+  "operations": {
+    "Charge": {"effects": {"spent": ["field", "amount_minor"], "charge_count": ["const", 1]}},
+    "Delete": {"effects": {}}
+  },
+  "invariants": [
+    {"id": "budget", "state": "spent", "max": 100},
+    {"id": "charge_limit", "state": "charge_count", "max": 2}
+  ],
+  "default": "REJECT",
+  "rules": [
+    {"id": "protected", "kind": "hard", "if": ["=", "target_protected", true], "then": "REJECT"},
+    {"id": "charge", "kind": "soft", "if": ["AND", ["=", "operation", "Charge"], [">", "amount_minor", 0]], "then": "ALLOW", "weight": 1, "priority": 0},
+    {"id": "delete", "kind": "soft", "if": ["=", "operation", "Delete"], "then": "ALLOW", "weight": 1, "priority": 0}
+  ],
+  "order": {"precedence": [["REJECT", "ESCALATE"], ["ESCALATE", "ALLOW"]]},
+  "limits": {"max_rules": 64, "max_depth": 6, "max_nodes": 1024}
+}

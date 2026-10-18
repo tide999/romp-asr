@@ -1,0 +1,30 @@
+# Credentials never belong in the image. .env is gitignored, but the Docker build
+# context is not git, so it has to be excluded explicitly.
+.env
+.env.*
+!.env.example
+*.key
+
+# Caches and coverage
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# The acceptance scope is produced by a real run and holds a consumed budget.
+# Ship the evidence (results.json, audit.json, manifests) but not the live scope:
+# accept.py refuses to run when a scope already exists, so shipping it would block
+# a reviewer from reproducing the run.
+experiments/*/state/
+# Generated fixtures. accept.py creates these with mkdir(exist_ok=False), so a
+# leftover directory from a previous run would make a fresh acceptance fail.
+experiments/*/workspace/
+experiments/*/system/
+
+# Build metadata
+build/
+dist/
+*.egg-info/

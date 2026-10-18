@@ -1,0 +1,39 @@
+# Credentials; only the empty example belongs in the public repository.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Runtime scopes and private agent traces.
+state/
+out/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+agent-trace.jsonl
+experiments/*/workspace/
+experiments/*/system/
+
+# Python environments, caches, and build outputs.
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editor and local files.
+.idea/
+.vscode/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
