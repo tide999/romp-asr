@@ -1,51 +1,58 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿# ROMP：通用安全 DSL 与受控工具执行
+# ROMP: A Safety Policy DSL and Controlled Tool Execution
 
-当前版本 `romp-mu++/0.3`，Python 3.11+。JSON 路径无运行时依赖；
-YAML 是可选载体，H-DSL 与 WASM 尚未实现。
+Current version: `romp-mu++/0.3`. Requires Python 3.11 or later.
+The JSON path has no runtime dependencies; YAML is an optional serialization
+format. H-DSL and WASM are not implemented.
 
-## Docker：免构建评审路径
+## Docker: No-Build Reviewer Access
 
-评审者使用已发布到 GHCR 的镜像，无需自行构建代码。发布者须将镜像包
-设为 Public，并确认未登录用户也能拉取：
+Reviewers can use the image published on GHCR without building from source.
 
 ```bash
 docker pull ghcr.io/tide999/romp-asr:0.3.0
-docker run --rm ghcr.io/tide999/romp-asr:0.3.0              # 用法
-docker run --rm ghcr.io/tide999/romp-asr:0.3.0 pytest -q    # 144 项检查
+docker run --rm ghcr.io/tide999/romp-asr:0.3.0              # Usage
+docker run --rm ghcr.io/tide999/romp-asr:0.3.0 pytest -q    # 144 checks
 docker run --rm ghcr.io/tide999/romp-asr:0.3.0 policy-demo
 docker run --rm ghcr.io/tide999/romp-asr:0.3.0 agent-demo
 ```
 
-两个 demo 均离线运行，不需要 API 密钥；演示使用本地支付账本和临时文件。
-预期结果包括预算超限拒绝、多维效果预留、UNKNOWN 保留占用，
-以及 agent-demo 中普通文件被删除、受保护文件被保留。
-Windows 用户可在配置好 Docker 服务的 WSL 中执行以上命令。
+Both demos run offline without an API key, using a local payment ledger and
+temporary files. Expected results include budget-overrun rejection,
+multi-dimensional effect reservations, retention of capacity on UNKNOWN,
+and, in `agent-demo`, deletion of ordinary files while protected files remain.
+Windows users can run these commands in WSL with a working Docker service.
 
-镜像固定 `python:3.12-slim-bookworm` + `pytest==9.1.1` + `PyYAML==6.0.3`，
-与论文所述 WSL 环境一致，容器内实测 144 passed。依赖版本可由
-`Dockerfile` 顶部改写，但改动后请同步论文中的环境陈述。
+The image uses `python:3.12-slim-bookworm`, `pytest==9.1.1`, and `PyYAML==6.0.3`,
+matching the WSL environment described in the paper. Container validation
+reported 144 passed. Dependency versions can be changed in `Dockerfile`;
+update the paper's environment description if they change.
 
-Linux 容器天然满足文件后端所需的 POSIX `dir_fd` unlink，因此在 Windows 上
-评审也能看到删除场景，而不必像源码路径那样静默少两行结果。
+Linux containers support the POSIX `dir_fd` unlink operation required by the
+file backend, so Windows reviewers can also run the deletion scenarios that
+are skipped when running the sources directly on Windows.
 
-镜像不含任何凭证：`.dockerignore` 显式排除 `.env`（构建上下文不受 gitignore
-保护），并且不打包验收作用域 `state/` 与生成的 fixture 目录，因此镜像里不含
-已消耗的预算。
+Credentials are excluded from the image: `.dockerignore` explicitly excludes
+`.env`, since Git ignore rules do not protect the Docker build context.
+The acceptance `state/` scope and generated fixture directories are also
+excluded, so consumed budget state is not packaged.
 
-真实模型验收（第 4.3 节）需要评审者自己的密钥，且会消耗托管模型额度：
+Live-model acceptance (Section 4.3) requires the reviewer's own API key and
+consumes hosted-model quota:
 
 ```bash
 mkdir -p out && cp .env out/
 docker run --rm -v "$PWD/out:/work" ghcr.io/tide999/romp-asr:0.3.0 acceptance
 ```
 
-`accept.py` 是一次性harness，检测到已有证据或作用域会拒绝运行，因此入口脚本
-先把 harness 复制到可写目录并清空既有证据；产物写回 `out/`。请勿删除失败样本。
+`accept.py` is a one-shot harness that refuses to run when evidence or a scope
+already exists. The entrypoint copies the harness into a writable directory
+and clears its copied evidence files; outputs are written to `out/`.
+Preserve failed samples.
 
-### 维护者构建与发布
+### Maintainer Build and Publication
 
-以下命令仅供维护者使用，在源码仓库根目录的 Bash / WSL 中执行。
-评审者直接使用上面的免构建入口：
+These commands are for maintainers, run from the source repository root in
+Bash or WSL. Reviewers should use the no-build commands above:
 
 ```bash
 docker build --platform linux/amd64 -t ghcr.io/tide999/romp-asr:0.3.0 .
@@ -53,12 +60,14 @@ docker login ghcr.io -u tide999
 docker push ghcr.io/tide999/romp-asr:0.3.0
 ```
 
-登录时输入有 write:packages 权限的 GitHub classic Token，不是账号密码。
-已用于投稿的版本标签不应覆盖；后续变更使用新标签。
-推送成功不代表公开：在 GitHub 的 Packages / romp-asr / Package settings
-中将可见性设置为 Public，再从未登录环境验证拉取和运行。
+Authenticate with a GitHub classic token with `write:packages` permission,
+not your account password. Do not overwrite a version tag used for submission;
+use a new tag for subsequent changes.
+A successful push does not make the image public: set its visibility to Public
+under GitHub's Packages / romp-asr / Package settings, then verify pulling
+and running it from an unauthenticated environment.
 
-## 安装与演示
+## Installation and Demonstration
 
 ```bash
 python -m pip install -e .
@@ -67,55 +76,73 @@ python -m romp_asr --version
 PYTHONPATH=src python examples/policy_v03_walkthrough.py
 ```
 
-Windows PowerShell 可用 `$env:PYTHONPATH="src"` 后运行示例。
-扣款后端为持久本地支付账本；真实临时文件删除仅在 POSIX 下演示。
+In Windows PowerShell, set `$env:PYTHONPATH="src"` before running the example.
+The charge backend uses a persistent local payment ledger. Actual temporary-file
+deletion is demonstrated only on POSIX systems.
 
-## 编译与纯求值
+## Compilation and Pure Evaluation
 
 ```bash
 python -m romp_asr check examples/policy_v02.json
 python -m romp_asr eval examples/policy_v02.json context.json
 ```
 
-`context.json` 包含 operation、amount_minor、candidate_total_minor、
-target_protected，必须由可信宿主构造。CLI 仅编译和求值，不执行工具。
-退出码：0=编译成功或 ALLOW；1=REJECT/ESCALATE；2=参数/编译/输入文件错误。
-JSON 输出中的 decision 才是实际决策，不以进程成功猜测业务动作。
+`context.json` contains `operation`, `amount_minor`, `candidate_total_minor`,
+and `target_protected`, and must be constructed by the trusted host.
+The CLI compiles and evaluates policies; it does not execute tools.
+Exit codes: 0 for successful compilation or ALLOW; 1 for REJECT/ESCALATE;
+2 for argument, compilation, or input-file errors.
+The `decision` field in the JSON output is the policy decision; process success
+alone does not establish that a business operation occurred.
 
-公共 API：v0.2 规则层为 compile_policy、evaluate、PolicyExecutor、
-OperationAdapter、charge_adapter、delete_adapter；v0.3 效果层为
-compile_state_policy、admit、StateEffectExecutor、StateEffectAdapter，
-适配器由宿主或示例自行定义。
-硬拒绝不能被软权重覆盖；无效 Context 先整体拒绝。
-准入事务预留累计额度，重试不重复调用，UNKNOWN/PENDING 保留占用。
+Public APIs:
+- v0.2 rule layer: `compile_policy`, `evaluate`, `PolicyExecutor`,
+  `OperationAdapter`, `charge_adapter`, and `delete_adapter`.
+- v0.3 effect layer: `compile_state_policy`, `admit`, `StateEffectExecutor`,
+  and `StateEffectAdapter`. Adapters are defined by the host or examples.
 
-只有已准入 ID 才持久绑定参数；REJECT/ESCALATE 不占用 ID，可重新求值。
-FAILED 的同 ID 重试返回原失败，新尝试须用新 ID。
-规则编辑应在数据库初始化前完成；已有策略变更需要显式迁移，
-当前不提供迁移/未知结果对账 API。新数据库属于新预算作用域，
-不能替换旧库以恢复已经消耗的额度。
-宿主必须保证一次调用整个生命周期的累计毛扣款不超过预留。
+Soft weights cannot override a hard rejection. An invalid context is rejected
+as a whole before rule evaluation. Admission transactions reserve cumulative
+capacity; retries do not invoke the tool again, and UNKNOWN/PENDING retain
+their reservations.
 
-## 测试与边界
+Only admitted identifiers are persistently bound to arguments.
+REJECT/ESCALATE do not claim an identifier and can be evaluated again.
+A same-ID retry of FAILED returns the stored failure; a new attempt needs a
+new identifier.
+Edit rules before initializing the database. Changes to a bound policy require
+explicit migration; migration and unknown-outcome reconciliation APIs are not
+currently provided. A new database is a new budget scope, not a replacement
+that restores already consumed capacity.
+The host must ensure that the lifetime gross charges of an invocation do not
+exceed its reservation.
+
+## Tests and Boundaries
 
 ```bash
 python -m pytest tests -q
 ```
 
-当前正式测试：WSL 144 passed；Windows 127 passed、17 项 POSIX skipped。
-v0.3 扣款演示预期：作用域 A 账本为 60、60、60、100，作用域 B 由
-charge_count 单独拒绝，作用域 C 的 UNKNOWN 保留整份效果向量；
-POSIX 下 system/core 保留，workspace/draft 删除。
-SQLite 要求 DELETE journal、synchronous=FULL；测试覆盖所选进程退出窗口，
-不据此保证掉电或存储损坏恢复。
+Current test results: WSL 144 passed; Windows 127 passed with 17 POSIX tests
+skipped. In the v0.3 charge walkthrough, scope A reports ledger totals of
+60, 60, 60, and 100; scope B rejects on `charge_count` alone; scope C retains
+the complete effect vector on UNKNOWN. On POSIX, `system/core` is preserved
+and `workspace/draft` is deleted.
+SQLite requires DELETE journal mode and `synchronous=FULL`. Tests cover selected
+process-exit windows; they do not establish recovery from power loss or storage
+corruption.
 
-可信宿主负责认证、事实提供、数据库保管及工具权限隔离。
-文件后端要求宿主独占目录命名空间，不保证恶意并发 rename 下目标身份。
-不是银行连接器、OS 沙箱或绝对业务正确性证明。
+The trusted host is responsible for authentication, trusted facts, database
+custody, and isolation of tool permissions. The file backend requires exclusive
+host control of the directory namespace; target identity is not guaranteed
+under malicious concurrent renames.
+ROMP is not a banking connector, an OS sandbox, or a proof of complete business
+correctness.
 
-## 正式参考 Agent
+## Reference Agent
 
-安装后使用 `romp-agent`，不是固定实验 episode 入口：
+After installation, use `romp-agent`, rather than a fixed experiment-episode
+entrypoint:
 
 ```bash
 romp-agent run --config examples/reference_agent.json \
@@ -123,27 +150,39 @@ romp-agent run --config examples/reference_agent.json \
 romp-agent status --config examples/reference_agent.json
 ```
 
-先在宿主环境设置 `ROMP_API_MODEL_KEY`，并按实际服务修改配置的模型和
-HTTPS Chat Completions 地址。配置不保存密钥。订单金额、稳定业务 ID、
-策略和状态目录都由宿主配置；模型只能提交已注册资源别名。
-可选文件目标使用已有目录，仅支持 POSIX，不自动创建临时 fixture。
+Set `ROMP_API_MODEL_KEY` in the host environment and configure the model and
+HTTPS Chat Completions endpoint for your provider. The configuration does not
+store the key. Order amounts, stable business identifiers, policies, and state
+directories are host-configured; the model can submit only registered resource
+aliases. Optional file targets use existing directories, require POSIX, and do
+not automatically create temporary fixtures.
 
-模型提案经 StateEffectExecutor 按 v0.3 效果声明准入后才执行，结果反馈模型继续任务。
-请求与本地账本跨任务、重启保留；`status` 显示账本合计、多维 held 与准入决策。
-`agent-trace.jsonl` 记录任务、工具反馈和最终回答，可能含私密内容，
-不是事务账本。终止为 completed 仅表示模型给出最终回答，不代表任务成功。
-不提供任意代码执行、OS 沙箱、UNKNOWN 自动对账或生产银行接入。
+Model proposals execute only after `StateEffectExecutor` admits them according
+to the v0.3 effect declarations. Results are fed back to the model so it can
+continue the task. Requests and the local ledger persist across tasks and
+restarts; `status` reports ledger totals, the multi-dimensional `held` vector,
+and admission decisions.
+`agent-trace.jsonl` records tasks, tool feedback, and final answers and may
+contain private content; it is not the transaction ledger.
+A `completed` termination means the model returned a final answer, not that the
+task succeeded. Arbitrary code execution, an OS sandbox, automatic UNKNOWN
+reconciliation, and production banking integration are not provided.
 
-配置、需求、架构决策与验收映射见 `docs/reference_agent.md`。
-新增参考 Agent 测试使用脚本模型，与真实模型实验结果分开报告。
+See `docs/reference_agent.md` for configuration, requirements, architecture
+decisions, and acceptance mappings. Reference-agent tests use a scripted model
+and are reported separately from live-model experiments.
 
-## 迁移
+## Migration
 
-旧模型 Runtime/ActionProposal、controlled-tools/1 专用入口、
-bench/eval 聚合/verify/perf CLI、LLM/baseline 实验链退出公共运行路径。
-开发工作区保留历史源码、测试、实验数据与指纹；独立公开源码包不包含该归档。
-旧数据库不得当作新数据库直接使用，不得通过切换版本清空实际已占用额度。
-历史合同不再描述当前版本；不承诺旧命令兼容。
+The legacy Runtime/ActionProposal model, dedicated `controlled-tools/1`
+entrypoint, bench/eval aggregation/verify/perf CLI, and LLM/baseline experiment
+pipeline are no longer part of the public execution path.
+Historical sources, tests, experiment records, and fingerprints remain in the
+development workspace; the standalone public source package excludes that
+archive. Do not use an old database directly as a new one or switch versions to
+clear capacity that is already held.
+Historical contracts do not describe the current version, and compatibility
+with legacy commands is not promised.
 
-当前效果记账规范：`docs/v03_state_effect_spec.md`。
-规则层迁移说明：`docs/v02_migration.md`。
+Current effect-accounting specification: `docs/v03_state_effect_spec.md`.
+Rule-layer migration notes: `docs/v02_migration.md`.
